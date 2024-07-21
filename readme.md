@@ -113,11 +113,11 @@ Starting load test with 1000 requests and 10 threads...
 
 ========================================
 RESULTS:
-- Total requests: 1000
-- Successful requests: 950
-- Failed requests: 50
-- Average response time: 1.35 seconds
-- Success rate: 95%
+- Total requests:          1000
+- Successful requests:     950
+- Failed requests:         50
+- Average response time:   1.35 seconds
+- Success rate:            95%
 
 - Average response time is within the acceptable range. 👍
 - Success rate meets the threshold. ✔️

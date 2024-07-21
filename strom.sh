@@ -10,6 +10,7 @@ THRESHOLD_SUCCESS=95
 EMAIL_ENABLED=false
 EMAIL_TO=""
 CURL_MAX_TIME=10
+LOG_FILE="/var/log/maelstrom.log"
 
 # Default configuration file path
 CONFIG_FILE="${XDG_CONFIG_HOME:-$HOME/.config}/maelstrom.conf"
@@ -147,6 +148,7 @@ results() {
     failed_requests=$(grep -c . "$TEMP_FAILED_FILE")
     avg_response_time=$(awk '{ total += $1; count++ } END { if (count > 0) print total / count; else print 0 }' "$TEMP_RESPONSE_FILE")
     success_rate=$(awk "BEGIN {print ($successful_requests / $total_requests) * 100}")
+
     echo "\n\033[1;34m========================================\033[0m"
     echo "\033[1;34mRESULTS:\033[0m"
     echo "- Total requests: $total_requests"
