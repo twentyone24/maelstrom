@@ -10,19 +10,10 @@ THRESHOLD_SUCCESS=95
 EMAIL_ENABLED=false
 EMAIL_TO=""
 CURL_MAX_TIME=10
-LOG_FILE="/var/log/maelstrom.log"
-
-# Default configuration file path
-CONFIG_FILE="${XDG_CONFIG_HOME:-$HOME/.config}/maelstrom.conf"
-
-# Load configurations
-load_config() {
-    if [ -f "$CONFIG_FILE" ]; then
-        source "$CONFIG_FILE"
-    else
-        echo "Configuration file not found! Using default values."
-    fi
-}
+LOG_FILE=""
+TEMP_COMPLETED_FILE=$(mktemp)
+TEMP_FAILED_FILE=$(mktemp)
+TEMP_RESPONSE_FILE=$(mktemp)
 
 # Print the logo
 print_logo() {
@@ -38,7 +29,7 @@ print_logo() {
 
 # Prompt for user input with default values
 prompt_for_input() {
-    echo "\033[0;36m🔧 Enter configuration values. Press Enter to keep default.\033[0m"
+    echo "\n\033[0;36m🔧 Enter configuration values. Press Enter to keep default.\033[0m"
     read -p "Number of requests (default: $N): " input_N
     read -p "Number of concurrent threads (default: $THREADS): " input_THREADS
     read -p "URL to test (default: $URL): " input_URL
@@ -48,6 +39,7 @@ prompt_for_input() {
     read -p "Enable email notifications (true/false, default: $EMAIL_ENABLED): " input_EMAIL_ENABLED
     read -p "Email address for notifications (default: $EMAIL_TO): " input_EMAIL_TO
     read -p "Curl max-time in seconds (default: $CURL_MAX_TIME): " input_CURL_MAX_TIME
+    read -p "Log file path (leave empty for no logging): " input_LOG_FILE
 
     # Set default values if no input is provided
     N=${input_N:-${N}}
@@ -59,6 +51,12 @@ prompt_for_input() {
     EMAIL_ENABLED=${input_EMAIL_ENABLED:-${EMAIL_ENABLED}}
     EMAIL_TO=${input_EMAIL_TO:-${EMAIL_TO}}
     CURL_MAX_TIME=${input_CURL_MAX_TIME:-${CURL_MAX_TIME}}
+    LOG_FILE=${input_LOG_FILE}
+
+    if [ -n "$LOG_FILE" ] && ! touch "$LOG_FILE" 2>/dev/null; then
+        echo "Log file path is not writable. Logging will be disabled."
+        LOG_FILE=""
+    fi
 
     echo "\033[1;34mStarting load test with $N requests and $THREADS threads...\033[0m"
 }
@@ -158,15 +156,19 @@ results() {
     echo "- Success rate: $success_rate%"
 
     if (($(echo "$avg_response_time > $THRESHOLD_TIME" | bc -l))); then
-        echo "- Average response time is higher than the threshold. 🚩" | tee -a "$LOG_FILE"
+        echo "- Average response time is higher than the threshold. 🚩"
+        [ -n "$LOG_FILE" ] && echo "- Average response time is higher than the threshold. 🚩" >>"$LOG_FILE"
     else
-        echo "- Average response time is within the acceptable range. 👍" | tee -a "$LOG_FILE"
+        echo "- Average response time is within the acceptable range. 👍"
+        [ -n "$LOG_FILE" ] && echo "- Average response time is within the acceptable range. 👍" >>"$LOG_FILE"
     fi
 
     if (($(echo "$success_rate < $THRESHOLD_SUCCESS" | bc -l))); then
-        echo "- Success rate is lower than the threshold. 🚩" | tee -a "$LOG_FILE"
+        echo "- Success rate is lower than the threshold. 🚩"
+        [ -n "$LOG_FILE" ] && echo "- Success rate is lower than the threshold. 🚩" >>"$LOG_FILE"
     else
-        echo "- Success rate meets the threshold. ✔️" | tee -a "$LOG_FILE"
+        echo "- Success rate meets the threshold. ✔️"
+        [ -n "$LOG_FILE" ] && echo "- Success rate meets the threshold. ✔️" >>"$LOG_FILE"
     fi
     echo "\033[1;34m========================================\033[0m"
 }
@@ -192,22 +194,23 @@ send_email() {
             echo "Response time threshold: $THRESHOLD_TIME seconds"
             echo "Success rate threshold: $THRESHOLD_SUCCESS%"
             echo ""
-            echo "Results:"
-            echo "Total requests: $(wc -l <"${TEMP_COMPLETED_FILE}")"
-            echo "Successful requests: $(grep -c . "${TEMP_COMPLETED_FILE}")"
-            echo "Failed requests: $(grep -c . "${TEMP_FAILED_FILE}")"
-            echo "Average response time: $avg_response_time seconds"
-            echo "Success rate: $success_rate%"
+            results
         } >"$temp_file"
 
-        # Send the email using the `mail` command
-        mail -s "$subject" "$EMAIL_TO" <"$temp_file"
+        # Send the email
+        if command -v mail >/dev/null; then
+            mail -s "$subject" "$EMAIL_TO" <"$temp_file"
+            echo "Email sent successfully."
+        else
+            echo "Mail command is not available. Please install mailutils or similar to enable email notifications."
+        fi
 
-        # Clean up
-        rm "$temp_file"
+        # Remove the temporary file
+        rm -f "$temp_file"
     fi
 }
 
+# Cleanup temporary files
 cleanup() {
     echo "\n\033[0;91mInterrupt received, stopping test...\033[0m"
     # Kill all background request processes
@@ -229,10 +232,9 @@ cleanup() {
 # Trap signals
 trap cleanup INT TERM
 
-# Main function
+# Main script execution
 main() {
     print_logo
-    load_config
     prompt_for_input
 
     TEMP_COMPLETED_FILE=$(mktemp)
@@ -286,6 +288,7 @@ main() {
 
     # Clean up temporary files
     rm -f "${TEMP_COMPLETED_FILE}" "${TEMP_FAILED_FILE}" "${TEMP_RESPONSE_FILE}"
+    echo "\n\033[1;32m✅ Load test completed.\033[0m"
 }
 
 main
