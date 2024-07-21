@@ -125,6 +125,7 @@ RESULTS:
 ```
 
 ## Troubleshooting
+
 - **Mail Command Not Found**: Install a mail utility like `mailx` or `sendmail` for email notifications.
 
 ## License
