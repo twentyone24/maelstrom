@@ -1,16 +1,25 @@
 #!/bin/bash
 
-# Configurations
-CONFIG_FILE="maelstrom.conf"
-LOG_FILE="loadtest.log"
+# Default configuration values
+N=1000
+THREADS=10
+URL="https://api.sampleapis.com/coffee/hot"
+RETRY_LIMIT=3
+THRESHOLD_TIME=2.0
+THRESHOLD_SUCCESS=95
+EMAIL_ENABLED=false
+EMAIL_TO=""
+CURL_MAX_TIME=10
+
+# Default configuration file path
+CONFIG_FILE="${XDG_CONFIG_HOME:-$HOME/.config}/maelstrom.conf"
 
 # Load configurations
 load_config() {
     if [ -f "$CONFIG_FILE" ]; then
         source "$CONFIG_FILE"
     else
-        echo "Configuration file not found!"
-        exit 1
+        echo "Configuration file not found! Using default values."
     fi
 }
 
@@ -29,24 +38,26 @@ print_logo() {
 # Prompt for user input with default values
 prompt_for_input() {
     echo "\033[0;36m🔧 Enter configuration values. Press Enter to keep default.\033[0m"
-    read -p "Number of requests (default: 1000): " N
-    read -p "Number of concurrent threads (default: 10): " THREADS
-    read -p "URL to test (default: https://api.sampleapis.com/coffee/hot): " URL
-    read -p "Retry limit for failed requests (default: 3): " RETRY_LIMIT
-    read -p "Response time threshold in seconds (default: 2.0): " THRESHOLD_TIME
-    read -p "Success rate threshold in percentage (default: 95): " THRESHOLD_SUCCESS
-    read -p "Enable email notifications (true/false, default: false): " EMAIL_ENABLED
-    read -p "Email address for notifications (default: empty): " EMAIL_TO
+    read -p "Number of requests (default: $N): " input_N
+    read -p "Number of concurrent threads (default: $THREADS): " input_THREADS
+    read -p "URL to test (default: $URL): " input_URL
+    read -p "Retry limit for failed requests (default: $RETRY_LIMIT): " input_RETRY_LIMIT
+    read -p "Response time threshold in seconds (default: $THRESHOLD_TIME): " input_THRESHOLD_TIME
+    read -p "Success rate threshold in percentage (default: $THRESHOLD_SUCCESS): " input_THRESHOLD_SUCCESS
+    read -p "Enable email notifications (true/false, default: $EMAIL_ENABLED): " input_EMAIL_ENABLED
+    read -p "Email address for notifications (default: $EMAIL_TO): " input_EMAIL_TO
+    read -p "Curl max-time in seconds (default: $CURL_MAX_TIME): " input_CURL_MAX_TIME
 
     # Set default values if no input is provided
-    N=${N:-1000}
-    THREADS=${THREADS:-10}
-    URL=${URL:-https://api.sampleapis.com/coffee/hot}
-    RETRY_LIMIT=${RETRY_LIMIT:-3}
-    THRESHOLD_TIME=${THRESHOLD_TIME:-2.0}
-    THRESHOLD_SUCCESS=${THRESHOLD_SUCCESS:-95}
-    EMAIL_ENABLED=${EMAIL_ENABLED:-false}
-    EMAIL_TO=${EMAIL_TO:-}
+    N=${input_N:-${N}}
+    THREADS=${input_THREADS:-${THREADS}}
+    URL=${input_URL:-${URL}}
+    RETRY_LIMIT=${input_RETRY_LIMIT:-${RETRY_LIMIT}}
+    THRESHOLD_TIME=${input_THRESHOLD_TIME:-${THRESHOLD_TIME}}
+    THRESHOLD_SUCCESS=${input_THRESHOLD_SUCCESS:-${THRESHOLD_SUCCESS}}
+    EMAIL_ENABLED=${input_EMAIL_ENABLED:-${EMAIL_ENABLED}}
+    EMAIL_TO=${input_EMAIL_TO:-${EMAIL_TO}}
+    CURL_MAX_TIME=${input_CURL_MAX_TIME:-${CURL_MAX_TIME}}
 
     echo "\033[1;34mStarting load test with $N requests and $THREADS threads...\033[0m"
 }
@@ -63,7 +74,6 @@ show_spinner() {
             sleep $delay
         done
     done
-    printf "\r> WARMUP COMPLETE, STARTING UP THE STORM\n"
 }
 
 # Make a request with retry logic and detailed logging
@@ -73,44 +83,44 @@ make_request() {
     local max_attempts=$RETRY_LIMIT
     local success=0
     local response
-    local HTTP_CODE
-    local TIME_TAKEN
-    local TIMESTAMP
+    local http_code
+    local time_taken
+    local timestamp
     local RED='\033[0;91m'
     local GREEN='\033[0;92m'
     local YELLOW='\033[0;93m'
     local NC='\033[0m'
 
     while [ $attempt -lt $max_attempts ]; do
-        response=$(curl -o /dev/null -s -w "%{http_code} %{time_total}\n" "$URL")
-        HTTP_CODE=$(echo "$response" | awk '{print $1}')
-        TIME_TAKEN=$(echo "$response" | awk '{print $2}')
-        TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')
+        response=$(curl -o /dev/null -s -w "%{http_code} %{time_total}\n" --max-time $CURL_MAX_TIME "$URL")
+        http_code=$(echo "$response" | awk '{print $1}')
+        time_taken=$(echo "$response" | awk '{print $2}')
+        timestamp=$(date '+%Y-%m-%d %H:%M:%S')
 
-        if [[ $HTTP_CODE -ge 200 && $HTTP_CODE -lt 300 ]]; then
-            HTTP_COLOR=$GREEN
-        elif [[ $HTTP_CODE -ge 300 && $HTTP_CODE -lt 400 ]]; then
-            HTTP_COLOR=$YELLOW
+        if [[ $http_code -ge 200 && $http_code -lt 300 ]]; then
+            http_color=$GREEN
+        elif [[ $http_code -ge 300 && $http_code -lt 400 ]]; then
+            http_color=$YELLOW
         else
-            HTTP_COLOR=$RED
-            FAILED_REQUESTS+=("$HTTP_CODE")
+            http_color=$RED
+            FAILED_REQUESTS+=("$http_code")
         fi
 
-        if (($(echo "$TIME_TAKEN > 1" | bc -l))); then
-            TIME_COLOR=$RED
+        if (($(echo "$time_taken > 1" | bc -l))); then
+            time_color=$RED
         else
-            TIME_COLOR=$GREEN
+            time_color=$GREEN
         fi
 
-        RESPONSE_TIMES+=("$TIME_TAKEN")
+        RESPONSE_TIMES+=("$time_taken")
         ((COMPLETED_REQUESTS++))
 
-        printf "%s [Thread %2d] Response: ${HTTP_COLOR}%3d${NC}, Time taken: ${TIME_COLOR}%6.2fs${NC}\n" "$TIMESTAMP" "$thread_id" "$HTTP_CODE" "$TIME_TAKEN"
+        printf "%s [Thread %2d] Response: ${http_color}%3d${NC}, Time taken: ${time_color}%6.2fs${NC}\n" "$timestamp" "$thread_id" "$http_code" "$time_taken"
 
-        echo "$TIME_TAKEN" >>"$TEMP_RESPONSE_FILE"
+        echo "$time_taken" >>"$TEMP_RESPONSE_FILE"
 
-        if [[ $HTTP_CODE -ge 400 ]]; then
-            echo "$HTTP_CODE" >>"$TEMP_FAILED_FILE"
+        if [[ $http_code -ge 400 ]]; then
+            echo "$http_code" >>"$TEMP_FAILED_FILE"
         fi
 
         echo "1" >>"$TEMP_COMPLETED_FILE"
@@ -181,43 +191,32 @@ send_email() {
             echo "Success rate threshold: $THRESHOLD_SUCCESS%"
             echo ""
             echo "Results:"
-            echo "- Total requests: $total_requests"
-            echo "- Successful requests: $successful_requests"
-            echo "- Failed requests: $failed_requests"
-            echo "- Average response time: $avg_response_time seconds"
-            echo "- Success rate: $success_rate%"
-            echo ""
-
-            # Check average response time
-            if (($(echo "$avg_response_time > $THRESHOLD_TIME" | bc -l))); then
-                echo "- Average response time is higher than the threshold. 🚩"
-            else
-                echo "- Average response time is within the acceptable range. 👍"
-            fi
-
-            # Check success rate
-            if (($(echo "$success_rate < $THRESHOLD_SUCCESS" | bc -l))); then
-                echo "- Success rate is lower than the threshold. 🚩"
-            else
-                echo "- Success rate meets the threshold. ✔️"
-            fi
+            echo "Total requests: $(wc -l <"${TEMP_COMPLETED_FILE}")"
+            echo "Successful requests: $(grep -c . "${TEMP_COMPLETED_FILE}")"
+            echo "Failed requests: $(grep -c . "${TEMP_FAILED_FILE}")"
+            echo "Average response time: $avg_response_time seconds"
+            echo "Success rate: $success_rate%"
         } >"$temp_file"
 
-        # Send the email using the temporary file as the body
+        # Send the email using the `mail` command
         mail -s "$subject" "$EMAIL_TO" <"$temp_file"
 
-        # Clean up temporary file
+        # Clean up
         rm "$temp_file"
     fi
 }
 
-# Cleanup function
 cleanup() {
     echo "\n\033[0;91mInterrupt received, stopping test...\033[0m"
     # Kill all background request processes
     for pid in "${request_pids[@]}"; do
         kill "$pid" 2>/dev/null
     done
+
+    if [[ -n ${spinner_pid} ]] && ps -p "${spinner_pid}" >/dev/null; then
+        kill "$((spinner_pid))"
+        wait "${spinner_pid}" 2>/dev/null || true
+    fi
     wait
     results
     send_email
@@ -228,35 +227,63 @@ cleanup() {
 # Trap signals
 trap cleanup INT TERM
 
-# Main script execution
-load_config
-print_logo
-prompt_for_input
+# Main function
+main() {
+    print_logo
+    load_config
+    prompt_for_input
 
-# Temporary files
-TEMP_COMPLETED_FILE=$(mktemp)
-TEMP_FAILED_FILE=$(mktemp)
-TEMP_RESPONSE_FILE=$(mktemp)
+    TEMP_COMPLETED_FILE=$(mktemp)
+    TEMP_FAILED_FILE=$(mktemp)
+    TEMP_RESPONSE_FILE=$(mktemp)
 
-# Start spinner
-show_spinner $$ &
-spinner_pid=$!
+    RESPONSE_TIMES=()
+    FAILED_REQUESTS=()
+    COMPLETED_REQUESTS=0
 
-# Initialize request pids array
-declare -a request_pids
+    echo "Starting warmup..."
 
-# Perform load test
-for ((i = 1; i <= THREADS; i++)); do
-    (
-        for ((j = 1; j <= N / THREADS; j++)); do
-            make_request "$i"
-        done
-    ) &
-    request_pids+=($!)
-done
+    show_spinner $$ &
+    spinner_pid=$!
 
-# Wait for all background jobs to complete
-wait
+    for ((i = 1; i <= THREADS; i++)); do
+        make_request "$i" &
+    done
 
-# Cleanup and results
-cleanup
+    wait
+
+    # Stop the spinner once warmup is complete
+    if [[ -n ${spinner_pid} ]] && ps -p "${spinner_pid}" >/dev/null; then
+        kill "$((spinner_pid))"
+        wait "${spinner_pid}" 2>/dev/null || true
+    fi
+
+    printf "\n\r> WARMUP COMPLETE, STARTING UP THE STORM\n"
+    echo -e "\033[1;34m========================================\033[0m"
+
+    # Initialize request PIDs array
+    declare -a request_pids
+
+    # Perform load test
+    for ((i = 1; i <= THREADS; i++)); do
+        (
+            for ((j = 1; j <= N / THREADS; j++)); do
+                make_request "$i"
+            done
+        ) &
+        request_pids+=($!)
+    done
+
+    wait
+
+    results
+
+    if [[ ${EMAIL_ENABLED} == "true" ]]; then
+        send_email
+    fi
+
+    # Clean up temporary files
+    rm -f "${TEMP_COMPLETED_FILE}" "${TEMP_FAILED_FILE}" "${TEMP_RESPONSE_FILE}"
+}
+
+main
