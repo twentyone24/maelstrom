@@ -125,8 +125,6 @@ RESULTS:
 ```
 
 ## Troubleshooting
-
-- **Configuration File Not Found**: Ensure `maelstrom.conf` is present in the same directory as the script.
 - **Mail Command Not Found**: Install a mail utility like `mailx` or `sendmail` for email notifications.
 
 ## License
