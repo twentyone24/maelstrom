@@ -20,6 +20,8 @@
 - **Detailed Logging**: Captures detailed information about each request, including HTTP status codes and response times.
 - **Email Notifications**: Optionally sends email notifications with a summary of test results.
 - **Graceful Shutdown**: Handles interruptions gracefully, ensuring that results are logged and notifications are sent.
+- **Latency Metrics**: Helps understand average latency of APIs helping you understand if the latency increases.
+- **Multi-threaded by design**: Simulates multi-threaded concurrent requests to API Endpoints and you can configure the thread count.
 
 ## Prerequisites
 
@@ -90,13 +92,6 @@ The script is designed to handle interruptions gracefully. To stop the test, pre
 ## Example Output
 
 ```bash
-███╗   ███╗ █████╗ ███████╗██╗     ███████╗████████╗██████╗  ██████╗ ███╗   ███╗
-████╗ ████║██╔══██╗██╔════╝██║     ██╔════╝╚══██╔══╝██╔══██╗██╔═══██╗████╗ ████║
-██╔████╔██║███████║█████╗  ██║     ███████╗   ██║   ██████╔╝██║   ██║██╔████╔██║
-██║╚██╔╝██║██╔══██║██╔══╝  ██║     ╚════██║   ██║   ██╔══██╗██║   ██║██║╚██╔╝██║
-██║ ╚═╝ ██║██║  ██║███████╗███████╗███████║   ██║   ██║  ██║╚██████╔╝██║ ╚═╝ ██║
-╚═╝     ╚═╝╚═╝  ╚═╝╚══════╝╚══════╝╚══════╝   ╚═╝   ╚═╝  ╚═╝ ╚═════╝ ╚═╝     ╚═╝
-
 🔧 Enter configuration values. Press Enter to keep default.
 Number of requests (default: 1000): 1000
 Number of concurrent threads (default: 10): 10
