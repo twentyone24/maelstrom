@@ -259,7 +259,7 @@ main() {
     fi
 
     printf "\n\r> WARMUP COMPLETE, STARTING UP THE STORM\n"
-    echo -e "\033[1;34m========================================\033[0m"
+    echo "\033[1;34m========================================\033[0m"
 
     # Initialize request PIDs array
     declare -a request_pids
