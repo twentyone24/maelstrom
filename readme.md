@@ -1,7 +1,19 @@
-# mailstrom
+```
+███╗   ███╗ █████╗ ███████╗██╗     ███████╗████████╗██████╗  ██████╗ ███╗   ███╗
+████╗ ████║██╔══██╗██╔════╝██║     ██╔════╝╚══██╔══╝██╔══██╗██╔═══██╗████╗ ████║
+██╔████╔██║███████║█████╗  ██║     ███████╗   ██║   ██████╔╝██║   ██║██╔████╔██║
+██║╚██╔╝██║██╔══██║██╔══╝  ██║     ╚════██║   ██║   ██╔══██╗██║   ██║██║╚██╔╝██║
+██║ ╚═╝ ██║██║  ██║███████╗███████╗███████║   ██║   ██║  ██║╚██████╔╝██║ ╚═╝ ██║
+╚═╝     ╚═╝╚═╝  ╚═╝╚══════╝╚══════╝╚══════╝   ╚═╝   ╚═╝  ╚═╝ ╚═════╝ ╚═╝     ╚═╝
+```
 
-This bash script is designed to perform load testing on a specified URL using multiple concurrent threads. It includes features for configuring test parameters, logging detailed results, and sending email notifications based on test outcomes.
+<!-- 
+<p align="center">
+  <a href="https://github.com/twentyone24/maelstrom?tab=MIT-1-ov-file"><img alt="License" src="https://img.shields.io/github/license/twenyone24/maelstrom?style=for-the-badge&logo=github&color=1A91FF"/></a>
+</p> -->
+<p align="center">A performant and lightweight A lightweight stress test script that uses concurrent threads to test a URL, with configurable parameters, detailed logging, and email notifications</p>
 
+---
 ## Features
 
 - **Configurable Parameters**: Customize the number of requests, concurrency level, URL to test, retry limits, response time thresholds, and success rate thresholds.
