@@ -1,0 +1,19 @@
+# Ignore temporary files
+*.tmp
+temp/*
+tmp/*
+
+# Ignore log files
+*.log
+
+# Ignore specific files created by the script
+# Assuming the script creates a temp file named `tempfile` or similar
+tempfile
+
+# Ignore any other files that should not be tracked
+*.swp
+*.bak
+.DS_Store
+
+# Ignore any environment-specific files
+.env
