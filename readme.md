@@ -11,7 +11,7 @@
 <p align="center">
   <a href="https://github.com/twentyone24/maelstrom?tab=MIT-1-ov-file"><img alt="License" src="https://img.shields.io/github/license/twenyone24/maelstrom?style=for-the-badge&logo=github&color=1A91FF"/></a>
 </p> -->
-<p align="center">A performant and lightweight A lightweight stress test script that uses concurrent threads to test a URL, with configurable parameters, detailed logging, and email notifications</p>
+<p align="center">A performant and lightweight stress test tool that uses concurrent threads to test API reliability, with configurable parameters, detailed logging, and email notifications</p>
 
 ---
 
