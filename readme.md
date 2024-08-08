@@ -6,6 +6,9 @@
 ██║ ╚═╝ ██║██║  ██║███████╗███████╗███████║   ██║   ██║  ██║╚██████╔╝██║ ╚═╝ ██║
 ╚═╝     ╚═╝╚═╝  ╚═╝╚══════╝╚══════╝╚══════╝   ╚═╝   ╚═╝  ╚═╝ ╚═════╝ ╚═╝     ╚═╝
 ```
+<p align="center">
+  <img alt="maelstromlogo" src="https://github.com/user-attachments/assets/3f1a6cf1-95d3-4b57-a133-b5de0ed1410f">
+</p>
 
 <!--
 <p align="center">
