@@ -2,12 +2,13 @@
   <img alt="maelstromlogo" src="https://github.com/user-attachments/assets/3f1a6cf1-95d3-4b57-a133-b5de0ed1410f">
 </p>
 
-<p align="center">
-  <a href="https://www.producthunt.com/posts/maelstrom?embed=true&utm_source=badge-featured&utm_medium=badge&utm_souce=badge-maelstrom" target="_blank"><img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=478519&theme=light" alt="maelstrom - stress&#0045;test&#0032;your&#0032;API&#0032;reliability&#0032;w&#0047;&#0032;concurrency&#0032; | Product Hunt" style="width: 250px; height: 54px;" width="250" height="54" /></a>
-</p>
 <p align="center">A performant and lightweight stress test tool that uses concurrent threads to test API reliability, with configurable parameters, detailed logging, and email notifications</p>
 
 ---
+
+<p align="center">
+  <a href="https://www.producthunt.com/posts/maelstrom?embed=true&utm_source=badge-featured&utm_medium=badge&utm_souce=badge-maelstrom" target="_blank"><img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=478519&theme=light" alt="maelstrom - stress&#0045;test&#0032;your&#0032;API&#0032;reliability&#0032;w&#0047;&#0032;concurrency&#0032; | Product Hunt" style="width: 250px; height: 54px;" width="250" height="54" /></a>
+</p>
 
 ## Features
 
