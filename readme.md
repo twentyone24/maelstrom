@@ -2,7 +2,9 @@
   <img alt="maelstromlogo" src="https://github.com/user-attachments/assets/3f1a6cf1-95d3-4b57-a133-b5de0ed1410f">
 </p>
 
-<p align="center">A performant and lightweight stress test tool that uses concurrent threads to test API reliability, with configurable parameters, detailed logging, and email notifications</p>
+<div align="center">
+ A performant and lightweight stress test tool that uses concurrent threads to test API reliability, with configurable parameters, detailed logging, and email notifications.
+</div>
 
 ---
 
@@ -10,22 +12,26 @@
   <a href="https://www.producthunt.com/posts/maelstrom?embed=true&utm_source=badge-featured&utm_medium=badge&utm_souce=badge-maelstrom" target="_blank"><img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=478519&theme=light" alt="maelstrom - stress&#0045;test&#0032;your&#0032;API&#0032;reliability&#0032;w&#0047;&#0032;concurrency&#0032; | Product Hunt" style="width: 250px; height: 54px;" width="250" height="54" /></a>
 </p>
 
-## Features
 
-- **Configurable Parameters**: Customize the number of requests, concurrency level, URL to test, retry limits, response time thresholds, and success rate thresholds.
-- **Detailed Logging**: Captures detailed information about each request, including HTTP status codes and response times.
-- **Email Notifications**: Optionally sends email notifications with a summary of test results.
-- **Graceful Shutdown**: Handles interruptions gracefully, ensuring that results are logged and notifications are sent.
-- **Latency Metrics**: Helps understand average latency of APIs helping you understand if the latency increases.
-- **Multi-threaded by design**: Simulates multi-threaded concurrent requests to API Endpoints and you can configure the thread count.
+<br/>
 
-## Prerequisites
+
+## ✨ Features
+
+- 🌈 **Configurable Parameters**: Customize the number of requests, concurrency level, URL to test, retry limits, response time thresholds, and success rate thresholds.
+- 💅 **Detailed Logging**: Captures detailed information about each request, including HTTP status codes and response times.
+- 🔥 **Email Notifications**: Optionally sends email notifications with a summary of test results.
+- 🛡 **Graceful Shutdown**: Handles interruptions gracefully, ensuring that results are logged and notifications are sent.
+- 🚀 **Latency Metrics**: Helps understand average latency of APIs helping you understand if the latency increases.
+- 📦 **Multi-threaded by design**: Simulates multi-threaded concurrent requests to API Endpoints w/ configurable thread count.
+
+## 🚀 Prerequisites
 
 - **Curl**: Required for making HTTP requests. Ensure it is installed on your system.
 - **Mail**: Required for sending email notifications (if enabled). Install a mail utility like `mailx` or `sendmail`.
 - **bc**: Required for floating-point arithmetic in shell scripts. Ensure it is installed.
 
-## Configuration
+## ⚡️ Configuration
 
 ### Configuration File (`maelstrom.conf`)
 
